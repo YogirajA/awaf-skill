@@ -1,1 +1,181 @@
-# awaf-skill
+# awaf — Claude Code Skill
+
+A [Claude Code](https://claude.ai/code) skill that runs an [AWAF v1.0](https://github.com/YogirajA/awaf) architectural assessment for AI agent systems.
+
+## What is AWAF?
+
+**Agent Well-Architected Framework (AWAF)** is an open specification defining production-readiness criteria for AI agents. It fills the same gap for agents that AWS WAF fills for cloud infrastructure: a vendor-neutral, community-owned standard for architectural rigour.
+
+AWAF v1.0 evaluates agents across **10 pillars in 3 tiers**:
+
+| Tier | Pillars | Weight |
+|------|---------|--------|
+| **Tier 0 — Foundation** | Vertical Slice & Autonomy | Prerequisite |
+| **Tier 1 — Cloud WAF Adapted** | Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability | 1.0× |
+| **Tier 2 — Agent-Native** | Reasoning Integrity, Controllability, Context Integrity | 1.5× |
+
+Tier 2 pillars carry extra weight because they have no cloud equivalent. Servers don't hallucinate, don't need kill switches in code, and don't accumulate stale reasoning context.
+
+Full spec: [github.com/YogirajA/awaf](https://github.com/YogirajA/awaf)
+
+---
+
+## What This Skill Does
+
+This skill is a **natural-language implementation** of the AWAF spec. Unlike `awaf-cli` (the code-scanning reference implementation), this skill accepts any form of evidence and conducts a dialogue-driven assessment:
+
+- Source code and configuration files
+- Cloud provider configs (IAM policies, VPC rules, budget alerts)
+- Observability exports (Datadog, Grafana, CloudWatch, Honeycomb, LangSmith, Langfuse, Arize)
+- Eval and testing reports (LangSmith, Braintrust, Promptfoo, hallucination rate data)
+- Infrastructure as code (Terraform plans, CDK stacks, Helm charts)
+- Architecture docs (ADRs, design docs, C4 models, system diagrams)
+- Operational artifacts (runbooks, SLO definitions, incident postmortems)
+- Security reports (Snyk output, AWS Security Hub, pen test results)
+- CI/CD configs (GitHub Actions, GitLab CI, Jenkins)
+- Billing and cost data (AWS Cost Explorer, token usage reports)
+- **Verbal or written description of how your system works**
+
+An agent with no code in the repo but verified runbooks, SLO docs, eval reports, and IAM exports can score higher than one with clean code and none of those things. Architecture is what the system does and how it is operated, not just what the code says.
+
+---
+
+## Installation
+
+```bash
+claude mcp add-skill https://github.com/YogirajA/awaf-skill
+```
+
+Or clone and reference locally:
+
+```bash
+git clone https://github.com/YogirajA/awaf-skill
+```
+
+Then add to your Claude Code skill path.
+
+---
+
+## Usage
+
+```
+/awaf
+```
+
+The skill opens by asking what evidence you can share, then:
+
+1. **Gathers evidence** — accepts anything you provide across all evidence categories
+2. **Scores each pillar** — assigns 0–100 with a confidence level (`verified` / `partial` / `self_reported`)
+3. **Produces a structured report** — overall score, per-pillar breakdown, findings, recommendations
+4. **Requests targeted evidence** — after the initial report, identifies the 2–3 gaps that would most improve score confidence and asks for them specifically
+5. **Re-scores on new evidence** — when you provide more artifacts, affected pillars are re-scored and deltas are shown
+
+---
+
+## Scoring
+
+**Per-pillar (0–100):** each question carries a risk weight (High = 3 pts, Medium = 2 pts, Low = 1 pt):
+
+```
+pillar_score = (implemented_weight / total_weight) × 100
+```
+
+Answering "none of these apply" to any question caps that pillar at **30** and triggers an automatic **High Risk** flag.
+
+**Overall score** applies a 1.5× multiplier to Tier 2 pillars:
+
+```python
+overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
+          sum(1.5 if tier == 2 else 1.0 for each pillar)
+```
+
+**Readiness rating:**
+
+| Score | Rating | What It Means |
+|-------|--------|---------------|
+| 90–100 | Production Ready | Architectural patterns are sound across all pillars |
+| 75–89 | Near Ready | Minor gaps, addressable before production |
+| 50–74 | Needs Work | Meaningful architectural risks present |
+| 25–49 | High Risk | Structural problems that will cause incidents |
+| 0–24 | Not Ready | Do not ship to production |
+
+**Confidence levels:**
+
+| Level | Meaning |
+|-------|---------|
+| `verified` | Evidence provided and assessed directly |
+| `partial` | Some evidence provided, meaningful gaps remain |
+| `self_reported` | No evidence provided; score reflects absence only |
+
+A `verified` 60 is more useful than a `self_reported` 85. The skill always displays confidence and always explains what drove it down.
+
+---
+
+## Example Output
+
+```
+AWAF Assessment: my-research-agent
+AWAF v1.0  |  2026-02-28
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Overall Score    61  Needs Work
+
+  TIER 0: FOUNDATION
+  Foundation        72  partial     PASS
+
+  TIER 1: CLOUD WAF ADAPTED
+  Op. Excellence    55  partial
+  Security          80  verified
+  Reliability       60  self_reported
+  Performance       70  partial
+  Cost Optim.       45  self_reported
+  Sustainability    50  partial
+
+  TIER 2: AGENT-NATIVE  (1.5x weight)
+  Reasoning Integ.  35  self_reported
+  Controllability   75  verified
+  Context Integrity 55  partial
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  EVIDENCE REVIEWED
+  ...
+
+  EVIDENCE GAPS
+  ...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  FINDINGS  (ordered by severity)
+  ...
+
+  RECOMMENDATIONS
+  ...
+
+  TO IMPROVE THIS ASSESSMENT
+  ...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+## Relationship to the AWAF Spec
+
+| | awaf-cli | awaf-skill (this repo) |
+|---|---|---|
+| Input | Code scanning, static analysis | Any evidence: code, docs, exports, verbal description |
+| Verification | Automated, deterministic | AI-assessed, dialogue-driven |
+| Can assess operational artifacts | No | Yes |
+| Can assess verbal descriptions | No | Yes |
+| Best for | CI/CD, automated gates | Architecture reviews, early-stage agents, teams without full tooling |
+
+Both implement the same AWAF v1.0 spec and produce comparable scores.
+
+---
+
+## License
+
+Apache 2.0. See [LICENSE](LICENSE).
+
+The AWAF name and logo are trademarked by the AWAF project. Specification use is unrestricted per the [upstream license](https://github.com/YogirajA/awaf).
