@@ -1,0 +1,30 @@
+{
+  "name": "awaf-marketplace",
+  "owner": {
+    "name": "Yogiraj Aradhye",
+    "email": "yogi@aradhye.com"
+  },
+  "metadata": {
+    "description": "AWAF skills and tools for AI agent architecture assessment",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "awaf",
+      "source": {
+        "source": "github",
+        "repo": "YogirajA/awaf-skill"
+      },
+      "description": "AWAF v1.0 architectural assessment for AI agent systems",
+      "version": "1.0.0",
+      "author": {
+        "name": "Yogiraj Aradhye"
+      },
+      "homepage": "https://github.com/YogirajA/awaf-skill",
+      "repository": "https://github.com/YogirajA/awaf-skill",
+      "license": "Apache-2.0",
+      "keywords": ["awaf", "agent", "architecture", "well-architected", "ai-agent"],
+      "category": "development"
+    }
+  ]
+}
