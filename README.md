@@ -42,17 +42,22 @@ An agent with no code in the repo but verified runbooks, SLO docs, eval reports,
 
 ## Installation
 
-```bash
-claude mcp add-skill https://github.com/YogirajA/awaf-skill
+**Via the Claude Code VSCode extension:**
+
+Open Manage Plugins, go to the Marketplaces tab, and add:
+
+```
+https://github.com/YogirajA/awaf-skill
 ```
 
-Or clone and reference locally:
+Then install the `awaf` plugin from the marketplace.
+
+**Via CLI:**
 
 ```bash
-git clone https://github.com/YogirajA/awaf-skill
+/plugin marketplace add YogirajA/awaf-skill
+/plugin install awaf@awaf-marketplace
 ```
-
-Then add to your Claude Code skill path.
 
 ---
 
