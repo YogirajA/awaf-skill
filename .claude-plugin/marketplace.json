@@ -12,8 +12,8 @@
     {
       "name": "awaf",
       "source": {
-        "source": "github",
-        "repo": "YogirajA/awaf-skill"
+        "source": "url",
+        "url": "https://github.com/YogirajA/awaf-skill.git"
       },
       "description": "AWAF v1.0 architectural assessment for AI agent systems",
       "version": "1.0.0",
