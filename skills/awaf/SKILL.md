@@ -296,41 +296,41 @@ Produce output that matches the `awaf run` CLI format exactly. Use Unicode box-d
  / _ \   | \/ \/ | / _ \   | _|
 /_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
 
-AWAF Assessment: [project name]
-AWAF v1.0  |  [date]
+AWAF Assessment: my-research-agent
+AWAF v1.0  |  2026-03-15
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Overall Score    [score]/100   [Readiness Rating]
-  [Readiness description — one sentence]
+  Overall Score    61/100   Needs Work
+  Notable gaps. Resolve High findings before production use.
 
   Scale: Production Ready >=90 · Near Ready >=75 · Needs Work >=50
          High Risk >=25 · Not Ready <25
   Foundation <40 = automatic FAIL regardless of overall score.
   Tier 2 pillars (Reasoning, Controllability, Context Integrity) carry 1.5x weight.
 
-┌──────────────────────┬───────┬────────────┬────────────┬────────┐
-│ Pillar               │ Score │ Progress   │ Confidence │ Status │
-╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
-│ TIER 0 -- FOUNDATION                                            │
-├──────────────────────┼───────┼────────────┼────────────┼────────┤
-│ Foundation           │   [n] │ [########] │ verified   │   PASS │
-╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
-│ TIER 1 -- CLOUD WAF ADAPTED                                     │
-├──────────────────────┼───────┼────────────┼────────────┼────────┤
-│ Op. Excellence       │   [n] │ [########] │ partial    │        │
-│ Security             │   [n] │ [########] │ verified   │        │
-│ Reliability          │   [n] │ [########] │ self-rep.  │        │
-│ Performance          │   [n] │ [########] │ partial    │        │
-│ Cost Optim.          │   [n] │ [########] │ verified   │        │
-│ Sustainability       │   [n] │ [########] │ self-rep.  │        │
-╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
-│ TIER 2 -- AGENT-NATIVE  (1.5x weight)                          │
-├──────────────────────┼───────┼────────────┼────────────┼────────┤
-│ Reasoning Integ.     │   [n] │ [########] │ self-rep.  │   1.5x │
-│ Controllability      │   [n] │ [########] │ partial    │   1.5x │
-│ Context Integrity    │   [n] │ [########] │ self-rep.  │   1.5x │
-└──────────────────────┴───────┴────────────┴────────────┴────────┘
+┌──────────────────────┬───────┬──────────────┬────────────┬─────────┐
+│ Pillar               │ Score │ Progress     │ Confidence │  Status │
+╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
+│ TIER 0 -- FOUNDATION                                               │
+├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
+│ Foundation           │    72 │ [#######   ] │ partial    │    PASS │
+╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
+│ TIER 1 -- CLOUD WAF ADAPTED                                        │
+├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
+│ Op. Excellence       │    55 │ [######    ] │ partial    │         │
+│ Security             │    80 │ [########  ] │ verified   │         │
+│ Reliability          │    60 │ [######    ] │ self-rep.  │         │
+│ Performance          │    70 │ [#######   ] │ partial    │         │
+│ Cost Optim.          │    45 │ [####      ] │ self-rep.  │         │
+│ Sustainability       │    50 │ [#####     ] │ partial    │         │
+╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
+│ TIER 2 -- AGENT-NATIVE  (1.5x weight)                              │
+├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
+│ Reasoning Integ.     │    35 │ [####      ] │ self-rep.  │    1.5x │
+│ Controllability      │    75 │ [########  ] │ verified   │    1.5x │
+│ Context Integrity    │    55 │ [######    ] │ partial    │    1.5x │
+└──────────────────────┴───────┴──────────────┴────────────┴─────────┘
 
-  FILES ANALYZED     N files
+  FILES ANALYZED     8 files
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   FINDINGS  (ordered by severity)
@@ -351,7 +351,7 @@ AWAF v1.0  |  [date]
 
 **Formatting rules:**
 
-- **Progress bar:** `[########  ]` — 10 chars total, one `#` per 10 points (rounded). Full bar = `[##########]`.
+- **Progress bar:** `[########  ]` — 12 chars total (`[` + 10 positions + `]`), one `#` per 10 points (rounded). Full bar = `[##########]`.
 - **Confidence values:** display as `verified`, `partial`, or `self-rep.` (abbreviated).
 - **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
 - **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
@@ -368,7 +368,8 @@ AWAF v1.0  |  [date]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   EVIDENCE GAPS
-  [What is missing, which pillar(s) it affects, what confidence upgrade it enables]
+  [What is missing, which pillar(s) it affects,
+   what confidence upgrade it enables]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
