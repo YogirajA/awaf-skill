@@ -276,69 +276,100 @@ overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
 
 | Score | Rating | What It Means |
 |-------|--------|---------------|
-| 90 to 100 | Production Ready | Architectural patterns are sound across all pillars |
-| 75 to 89 | Near Ready | Minor gaps, addressable before production |
-| 50 to 74 | Needs Work | Meaningful architectural risks present |
-| 25 to 49 | High Risk | Structural problems that will cause incidents |
-| 0 to 24 | Not Ready | Do not ship to production |
+| >= 90 | Production Ready | Agent is production-grade. Minor improvements only. |
+| >= 75 | Near Ready | Close to production. Address findings before deploying. |
+| >= 50 | Needs Work | Notable gaps. Resolve High findings before production use. |
+| >= 25 | High Risk | Significant control failures. Not suitable for production. |
+| < 25  | Not Ready | Critical gaps across multiple pillars. Major rework required. |
 
 ---
 
 ## Output Format
 
+Produce output that matches the `awaf run` CLI format exactly. Use Unicode box-drawing characters for the pillar table. Use `━` (U+2501) for separators.
+
+**No artifact file.** This skill runs as a conversational assessment inside Claude Code. It cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
+
 ```
+   _      _  _  _    _      ___
+  /_\    | || || |  /_\    | __|
+ / _ \   | \/ \/ | / _ \   | _|
+/_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
+
 AWAF Assessment: [project name]
 AWAF v1.0  |  [date]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Overall Score    [score]/100   [Readiness Rating]
+  [Readiness description — one sentence]
 
-  Overall Score    [score]  [Readiness Rating]
+  Scale: Production Ready >=90 · Near Ready >=75 · Needs Work >=50
+         High Risk >=25 · Not Ready <25
+  Foundation <40 = automatic FAIL regardless of overall score.
+  Tier 2 pillars (Reasoning, Controllability, Context Integrity) carry 1.5x weight.
 
-  TIER 0: FOUNDATION
-  Foundation        [score]  [confidence]    [PASS / FAIL]
+┌──────────────────────┬───────┬────────────┬────────────┬────────┐
+│ Pillar               │ Score │ Progress   │ Confidence │ Status │
+╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
+│ TIER 0 -- FOUNDATION                                            │
+├──────────────────────┼───────┼────────────┼────────────┼────────┤
+│ Foundation           │   [n] │ [########] │ verified   │   PASS │
+╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
+│ TIER 1 -- CLOUD WAF ADAPTED                                     │
+├──────────────────────┼───────┼────────────┼────────────┼────────┤
+│ Op. Excellence       │   [n] │ [########] │ partial    │        │
+│ Security             │   [n] │ [########] │ verified   │        │
+│ Reliability          │   [n] │ [########] │ self-rep.  │        │
+│ Performance          │   [n] │ [########] │ partial    │        │
+│ Cost Optim.          │   [n] │ [########] │ verified   │        │
+│ Sustainability       │   [n] │ [########] │ self-rep.  │        │
+╞══════════════════════╪═══════╪════════════╪════════════╪════════╡
+│ TIER 2 -- AGENT-NATIVE  (1.5x weight)                          │
+├──────────────────────┼───────┼────────────┼────────────┼────────┤
+│ Reasoning Integ.     │   [n] │ [########] │ self-rep.  │   1.5x │
+│ Controllability      │   [n] │ [########] │ partial    │   1.5x │
+│ Context Integrity    │   [n] │ [########] │ self-rep.  │   1.5x │
+└──────────────────────┴───────┴────────────┴────────────┴────────┘
 
-  TIER 1: CLOUD WAF ADAPTED
-  Op. Excellence    [score]  [confidence]
-  Security          [score]  [confidence]
-  Reliability       [score]  [confidence]
-  Performance       [score]  [confidence]
-  Cost Optim.       [score]  [confidence]
-  Sustainability    [score]  [confidence]
-
-  TIER 2: AGENT-NATIVE  (1.5x weight)
-  Reasoning Integ.  [score]  [confidence]
-  Controllability   [score]  [confidence]
-  Context Integrity [score]  [confidence]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  EVIDENCE REVIEWED
-  [Every artifact assessed: code files, reports, configs,
-   docs, dashboards, exports, verbal descriptions]
-
-  EVIDENCE GAPS
-  [Each gap: what is missing, which pillar(s) it affects,
-   what confidence upgrade it would enable]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FILES ANALYZED     N files
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   FINDINGS  (ordered by severity)
-
-  [Pillar]   [Critical / High / Medium]
-             [Specific finding with evidence citation]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  [Critical ]  [Pillar            ]  [Specific finding with evidence citation]
+  [High     ]  [Pillar            ]  [Specific finding]
+  [Medium   ]  [Pillar            ]  [Specific finding]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   RECOMMENDATIONS
-
-  [Pillar]   [Specific actionable fix with location or owner]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  [Pillar            ]  [Specific actionable fix — wrap long lines with continuation indent]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   TO IMPROVE THIS ASSESSMENT
-  [2 to 3 specific evidence items that would most improve
-   score confidence, ranked by impact on overall score]
+  [2 to 3 specific evidence items that would most improve score confidence,
+   ranked by impact on overall score]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Formatting rules:**
+
+- **Progress bar:** `[########  ]` — 10 chars total, one `#` per 10 points (rounded). Full bar = `[##########]`.
+- **Confidence values:** display as `verified`, `partial`, or `self-rep.` (abbreviated).
+- **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
+- **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
+- **Readiness descriptions:**
+  - Production Ready: "Agent is production-grade. Minor improvements only."
+  - Near Ready: "Close to production. Address findings before deploying."
+  - Needs Work: "Notable gaps. Resolve High findings before production use."
+  - High Risk: "Significant control failures. Not suitable for production."
+  - Not Ready: "Critical gaps across multiple pillars. Major rework required."
+- **Foundation FAIL:** if Foundation score < 40, show `FAIL` in status and do not score Tier 1 or Tier 2 pillars.
+- **EVIDENCE GAPS:** if there are gaps, append after TO IMPROVE THIS ASSESSMENT:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  EVIDENCE GAPS
+  [What is missing, which pillar(s) it affects, what confidence upgrade it enables]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
