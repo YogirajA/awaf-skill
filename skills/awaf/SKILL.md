@@ -105,8 +105,9 @@ What to assess:
 - Is the blast radius of a failure contained to this agent's slice?
 - Are inter-agent communications deliberate and minimal rather than structural coupling?
 - Is the slice boundary documented and enforced?
+- Are tools single-purpose with explicitly described capabilities, and are inter-agent data contracts typed rather than free-form text?
 
-Evidence sources: architecture diagrams, system design docs, ADRs, dependency maps, agent framework configs (LangGraph graph definitions, CrewAI crew definitions), service mesh configs, code structure.
+Evidence sources: architecture diagrams, system design docs, ADRs, dependency maps, agent framework configs (LangGraph graph definitions, CrewAI crew definitions), service mesh configs, code structure, MCP tool definitions, tool description audits, inter-agent contract schemas (OpenAPI, Pydantic models, TypedDict definitions).
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
@@ -235,14 +236,16 @@ Evidence sources: kill switch implementation in code, API endpoints for pause/re
 Stale context is corrupted reasoning. This pillar has no cloud equivalent.
 
 What to assess:
-- Is context actively managed across long sessions (stale data evicted, not just accumulated)?
+- Is context actively managed across long sessions (stale data evicted, stale tool results pruned on resume, current state re-fetched rather than replayed)?
 - Is external content sanitized before entering agent context?
 - Does the agent distinguish between what it knows and what it inferred?
 - Is there a mechanism to detect stale or contradictory context?
 - Are the limits of what the agent knows surfaced explicitly?
 - Is context window usage tracked?
+- Is agent state explicitly persisted during long sessions (scratchpad, memory store, or equivalent), not just accumulated in context?
+- Are tool response outputs filtered to relevant fields before re-entering context (not just input context pruned)?
 
-Evidence sources: context management code, prompt injection defense configs, input sanitization logic, context window usage dashboards (LangSmith, Langfuse), session lifecycle management, memory or context store configs (vector DB configs, context pruning logic), context trace exports, agent memory architecture docs.
+Evidence sources: context management code, prompt injection defense configs, input sanitization logic, context window usage dashboards (LangSmith, Langfuse), session lifecycle management, memory or context store configs (vector DB configs, context pruning logic), context trace exports, agent memory architecture docs, scratchpad or memory store implementation, session resume logic, tool response filtering/pruning code.
 
 ---
 
