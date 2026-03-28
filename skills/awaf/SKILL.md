@@ -282,7 +282,7 @@ overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
 
 **Readiness bands:**
 
-Scores are bands, not point estimates. LLM assessment has run-to-run variance; moving within a band is noise. Only a band change is meaningful — and only when agentic code changed and multiple runs confirm it.
+Scores are bands, not point estimates. LLM assessment has run-to-run variance; moving within a band is noise. A band change is only meaningful when agentic code changed and multiple assessments confirm the new band. This skill produces a single-run assessment. For multi-run averaging, use `awaf run --runs N` from the CLI.
 
 | Band | Range | Label | What It Means |
 |------|-------|-------|---------------|
