@@ -111,6 +111,8 @@ Evidence sources: architecture diagrams, system design docs, ADRs, dependency ma
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
+**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
+
 ---
 
 ### TIER 1: Cloud WAF Adapted (1.0x weight)
@@ -163,6 +165,7 @@ What to assess:
 - Is model selection appropriate for task complexity (not defaulting to the most capable model for simple tasks)?
 - Is context pruned to remove stale or irrelevant content before each call?
 - Are independent subtasks parallelized?
+- Are tool calls and LLM API calls batched where possible to reduce per-call overhead and latency?
 - Are results cached to avoid redundant LLM calls?
 - Is there latency measurement and a defined latency SLO?
 
@@ -178,6 +181,7 @@ What to assess:
 - Are token costs tracked per run?
 - Are cost alerts configured?
 - Are unnecessary tool calls eliminated?
+- Are tool calls and LLM API calls batched where possible to reduce per-request cost?
 
 Evidence sources: AWS Cost Explorer exports, token usage dashboards (LangSmith, Langfuse, Datadog LLM Observability), budget alert configs (AWS Budgets, Azure Cost Management, GCP Budget alerts), billing reports, session budget code, loop detection implementation, cost trend charts.
 
@@ -188,7 +192,7 @@ Evidence sources: AWS Cost Explorer exports, token usage dashboards (LangSmith, 
 What to assess:
 - Are models right-sized for the task?
 - Are results cached to avoid redundant calls for identical inputs?
-- Are tool calls batched where possible?
+- Are tool calls and LLM API calls batched where possible?
 - Is there a mechanism to skip re-evaluation when inputs have not changed?
 
 Evidence sources: model selection ADRs, caching implementation, batch processing configs, cost trend data showing efficiency improvement over time, energy or carbon reporting where available.
@@ -242,6 +246,7 @@ What to assess:
 - Is there a mechanism to detect stale or contradictory context?
 - Are the limits of what the agent knows surfaced explicitly?
 - Is context window usage tracked?
+- Is context size actively bounded during long sessions? Does the agent prune, summarize, or offload context before approaching window limits, rather than silently degrading as the window fills?
 - Is agent state explicitly persisted during long sessions (scratchpad, memory store, or equivalent), not just accumulated in context?
 - Are tool response outputs filtered to relevant fields before re-entering context (not just input context pruned)?
 
@@ -275,15 +280,17 @@ overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
           sum(1.5 if tier == 2 else 1.0 for each pillar)
 ```
 
-**Readiness rating:**
+**Readiness bands:**
 
-| Score | Rating | What It Means |
-|-------|--------|---------------|
-| >= 90 | Production Ready | Agent is production-grade. Minor improvements only. |
-| >= 75 | Near Ready | Close to production. Address findings before deploying. |
-| >= 50 | Needs Work | Notable gaps. Resolve High findings before production use. |
-| >= 25 | High Risk | Significant control failures. Not suitable for production. |
-| < 25  | Not Ready | Critical gaps across multiple pillars. Major rework required. |
+Scores are bands, not point estimates. LLM assessment has run-to-run variance; moving within a band is noise. Only a band change is meaningful — and only when agentic code changed and multiple runs confirm it.
+
+| Band | Range | Label | What It Means |
+|------|-------|-------|---------------|
+| 5 | 85–100 | Production Ready | Fully ready. Variance within this band is noise. |
+| 4 | 70–84 | Near Ready | Close to production. Address findings before deploying. |
+| 3 | 50–69 | Needs Work | Notable gaps. Resolve High findings before production use. |
+| 2 | 25–49 | High Risk | Significant control failures. Not suitable for production. |
+| 1 | 0–24  | Not Ready | Critical gaps across multiple pillars. Major rework required. |
 
 ---
 
@@ -305,8 +312,8 @@ AWAF v1.0  |  2026-03-15
   Overall Score    61/100   Needs Work
   Notable gaps. Resolve High findings before production use.
 
-  Scale: Production Ready >=90 · Near Ready >=75 · Needs Work >=50
-         High Risk >=25 · Not Ready <25
+  Scale: Production Ready 85-100 · Near Ready 70-84 · Needs Work 50-69
+         High Risk 25-49 · Not Ready 0-24
   Foundation <40 = automatic FAIL regardless of overall score.
   Tier 2 pillars (Reasoning, Controllability, Context Integrity) carry 1.5x weight.
 
@@ -359,11 +366,11 @@ AWAF v1.0  |  2026-03-15
 - **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
 - **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
 - **Readiness descriptions:**
-  - Production Ready: "Agent is production-grade. Minor improvements only."
-  - Near Ready: "Close to production. Address findings before deploying."
-  - Needs Work: "Notable gaps. Resolve High findings before production use."
-  - High Risk: "Significant control failures. Not suitable for production."
-  - Not Ready: "Critical gaps across multiple pillars. Major rework required."
+  - Production Ready (85–100): "Fully ready. Variance within this band is noise."
+  - Near Ready (70–84): "Close to production. Address findings before deploying."
+  - Needs Work (50–69): "Notable gaps. Resolve High findings before production use."
+  - High Risk (25–49): "Significant control failures. Not suitable for production."
+  - Not Ready (0–24): "Critical gaps across multiple pillars. Major rework required."
 - **Foundation FAIL:** if Foundation score < 40, show `FAIL` in status and do not score Tier 1 or Tier 2 pillars.
 - **EVIDENCE GAPS:** if there are gaps, append after TO IMPROVE THIS ASSESSMENT:
 
