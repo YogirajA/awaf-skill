@@ -111,7 +111,7 @@ Evidence sources: architecture diagrams, system design docs, ADRs, dependency ma
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
-**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
+**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
 
 ---
 
@@ -298,11 +298,9 @@ Scores are bands, not point estimates. LLM assessment has run-to-run variance; m
 
 Produce output that matches the `awaf run` CLI format exactly, so a skill assessment and a CLI assessment are visually interchangeable. The full report template (ASCII banner, pillar table, findings, recommendations, evidence gaps) and the precise formatting rules (progress-bar width, confidence abbreviations, padding, line wrapping, Foundation FAIL handling) live in `references/output-format.md`. Read that file before writing the report and follow it exactly.
 
-Key constraints to keep in mind while assessing:
+Two constraints carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
-- **Readiness band scale:** Production Ready 85-100 · Near Ready 70-84 · Needs Work 50-69 · High Risk 25-49 · Not Ready 0-24.
 - **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
-- **Tier 2 weighting:** Reasoning Integrity, Controllability, and Context Integrity carry 1.5x weight in the overall score.
 - **No artifact file:** this skill runs as a conversational assessment inside Claude Code and cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
 
 ---
