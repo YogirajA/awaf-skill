@@ -1,12 +1,12 @@
 # awaf — Claude Code Skill
 
-A [Claude Code](https://claude.ai/code) skill that runs an [AWAF v1.0](https://github.com/YogirajA/awaf) architectural assessment for AI agent systems.
+A [Claude Code](https://claude.ai/code) skill that runs an [AWAF v1.3](https://github.com/YogirajA/awaf) architectural assessment for AI agent systems.
 
 ## What is AWAF?
 
 **Agent Well-Architected Framework (AWAF)** is an open specification defining production-readiness criteria for AI agents. It fills the same gap for agents that AWS WAF fills for cloud infrastructure: a vendor-neutral, community-owned standard for architectural rigour.
 
-AWAF v1.0 evaluates agents across **10 pillars in 3 tiers**:
+AWAF v1.3 evaluates agents across **10 pillars in 3 tiers**:
 
 | Tier | Pillars | Weight |
 |------|---------|--------|
@@ -17,6 +17,13 @@ AWAF v1.0 evaluates agents across **10 pillars in 3 tiers**:
 Tier 2 pillars carry extra weight because they have no cloud equivalent. Servers don't hallucinate, don't need kill switches in code, and don't accumulate stale reasoning context.
 
 Full spec: [github.com/YogirajA/awaf](https://github.com/YogirajA/awaf)
+
+**What's new in v1.3:**
+
+- **Batching criteria** in Performance Efficiency, Cost Optimization, and Sustainability: tool calls and LLM API calls should be batched where possible to cut per-call overhead, latency, and cost.
+- **Context Integrity expansions:** active context-size bounding (prune, summarize, or offload before window limits), explicit state persistence for long sessions, and filtering tool responses to relevant fields before they re-enter context.
+- **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Caution finding rather than a score penalty.
+- **Band-based scoring:** readiness is read as bands, not point estimates, because LLM assessment varies run to run.
 
 ---
 
@@ -94,15 +101,17 @@ overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
           sum(1.5 if tier == 2 else 1.0 for each pillar)
 ```
 
-**Readiness rating:**
+**Readiness bands:**
 
-| Score | Rating | What It Means |
-|-------|--------|---------------|
-| 90–100 | Production Ready | Architectural patterns are sound across all pillars |
-| 75–89 | Near Ready | Minor gaps, addressable before production |
-| 50–74 | Needs Work | Meaningful architectural risks present |
-| 25–49 | High Risk | Structural problems that will cause incidents |
-| 0–24 | Not Ready | Do not ship to production |
+Scores are bands, not point estimates. LLM-based assessment has run-to-run variance, so moving within a band is noise. A band change is only meaningful when the agent's code actually changed and multiple assessments confirm the new band. This skill produces a single-run assessment. For multi-run averaging, use `awaf run --runs N` from the [CLI](https://github.com/YogirajA/awaf-cli).
+
+| Band | Range | Label | What It Means |
+|------|-------|-------|---------------|
+| 5 | 85–100 | Production Ready | Fully ready. Variance within this band is noise. |
+| 4 | 70–84 | Near Ready | Close to production. Address findings before deploying. |
+| 3 | 50–69 | Needs Work | Notable gaps. Resolve High findings before production use. |
+| 2 | 25–49 | High Risk | Significant control failures. Not suitable for production. |
+| 1 | 0–24 | Not Ready | Critical gaps across multiple pillars. Major rework required. |
 
 **Confidence levels:**
 
@@ -125,13 +134,13 @@ A `verified` 60 is more useful than a `self_reported` 85. The skill always displ
 /_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
 
 AWAF Assessment: my-research-agent
-AWAF v1.0  |  2026-03-15
+AWAF v1.3  |  2026-03-15
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Overall Score    61/100   Needs Work
   Notable gaps. Resolve High findings before production use.
 
-  Scale: Production Ready >=90 · Near Ready >=75 · Needs Work >=50
-         High Risk >=25 · Not Ready <25
+  Scale: Production Ready 85-100 · Near Ready 70-84 · Needs Work 50-69
+         High Risk 25-49 · Not Ready 0-24
   Foundation <40 = automatic FAIL regardless of overall score.
   Tier 2 pillars (Reasoning, Controllability, Context Integrity) carry 1.5x weight.
 
@@ -197,9 +206,11 @@ AWAF v1.0  |  2026-03-15
 | Verification | Automated, deterministic | AI-assessed, dialogue-driven |
 | Can assess operational artifacts | No | Yes |
 | Can assess verbal descriptions | No | Yes |
+| Multi-run averaging | Yes (`awaf run --runs N`) | No, single run per invocation |
+| Score history | Yes (local SQLite, `awaf history`) | No |
 | Best for | CI/CD, automated gates | Architecture reviews, early-stage agents, teams without full tooling |
 
-Both implement the same AWAF v1.0 spec and produce comparable scores.
+Both implement the same AWAF v1.3 spec and produce comparable scores. Because LLM assessment varies run to run, treat single-run scores as bands. When you need a confirmed band change, run the CLI with `--runs N`.
 
 ---
 

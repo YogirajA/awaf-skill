@@ -1,11 +1,11 @@
 ---
 name: awaf
-description: Run an AWAF v1.0 architectural assessment for an AI agent system. Evaluates production-readiness across 10 pillars in 3 tiers. Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or conversation. Produces a scored report with findings and recommendations.
+description: Run an AWAF v1.3 architectural assessment for an AI agent system, scoring production-readiness across 10 pillars in 3 tiers and producing a scored report with findings and recommendations. Use whenever the user wants to assess, review, audit, or score an AI agent's production-readiness, architecture, reliability, security, cost, controllability, or operational maturity, or asks things like "is my agent production-ready", "review my agent architecture", "run AWAF", "score my agent", or "how robust is my agent". Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or a verbal description.
 ---
 
 # AWAF: Agent Well-Architected Framework Assessment
 
-You are conducting an AWAF v1.0 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
+You are conducting an AWAF v1.3 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
 
 This is an architectural assessment, not a code review. Code is one source of evidence among many. The following are all equally valid inputs to an AWAF assessment:
 
@@ -36,7 +36,7 @@ Use this opening:
 
 ---
 
-"I'll assess your agent architecture against AWAF v1.0 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
+"I'll assess your agent architecture against AWAF v1.3 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
 
 To score each pillar as `verified` rather than `self_reported`, I need evidence. Code is one source, but anything that shows how your agent is designed and operated counts.
 
@@ -111,6 +111,8 @@ Evidence sources: architecture diagrams, system design docs, ADRs, dependency ma
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
+**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
+
 ---
 
 ### TIER 1: Cloud WAF Adapted (1.0x weight)
@@ -163,6 +165,7 @@ What to assess:
 - Is model selection appropriate for task complexity (not defaulting to the most capable model for simple tasks)?
 - Is context pruned to remove stale or irrelevant content before each call?
 - Are independent subtasks parallelized?
+- Are tool calls and LLM API calls batched where possible to reduce per-call overhead and latency?
 - Are results cached to avoid redundant LLM calls?
 - Is there latency measurement and a defined latency SLO?
 
@@ -178,6 +181,7 @@ What to assess:
 - Are token costs tracked per run?
 - Are cost alerts configured?
 - Are unnecessary tool calls eliminated?
+- Are tool calls and LLM API calls batched where possible to reduce per-request cost?
 
 Evidence sources: AWS Cost Explorer exports, token usage dashboards (LangSmith, Langfuse, Datadog LLM Observability), budget alert configs (AWS Budgets, Azure Cost Management, GCP Budget alerts), billing reports, session budget code, loop detection implementation, cost trend charts.
 
@@ -188,7 +192,7 @@ Evidence sources: AWS Cost Explorer exports, token usage dashboards (LangSmith, 
 What to assess:
 - Are models right-sized for the task?
 - Are results cached to avoid redundant calls for identical inputs?
-- Are tool calls batched where possible?
+- Are tool calls and LLM API calls batched where possible?
 - Is there a mechanism to skip re-evaluation when inputs have not changed?
 
 Evidence sources: model selection ADRs, caching implementation, batch processing configs, cost trend data showing efficiency improvement over time, energy or carbon reporting where available.
@@ -242,6 +246,7 @@ What to assess:
 - Is there a mechanism to detect stale or contradictory context?
 - Are the limits of what the agent knows surfaced explicitly?
 - Is context window usage tracked?
+- Is context size actively bounded during long sessions? Does the agent prune, summarize, or offload context before approaching window limits, rather than silently degrading as the window fills?
 - Is agent state explicitly persisted during long sessions (scratchpad, memory store, or equivalent), not just accumulated in context?
 - Are tool response outputs filtered to relevant fields before re-entering context (not just input context pruned)?
 
@@ -275,106 +280,28 @@ overall = sum(score * (1.5 if tier == 2 else 1.0) for each pillar) /
           sum(1.5 if tier == 2 else 1.0 for each pillar)
 ```
 
-**Readiness rating:**
+**Readiness bands:**
 
-| Score | Rating | What It Means |
-|-------|--------|---------------|
-| >= 90 | Production Ready | Agent is production-grade. Minor improvements only. |
-| >= 75 | Near Ready | Close to production. Address findings before deploying. |
-| >= 50 | Needs Work | Notable gaps. Resolve High findings before production use. |
-| >= 25 | High Risk | Significant control failures. Not suitable for production. |
-| < 25  | Not Ready | Critical gaps across multiple pillars. Major rework required. |
+Scores are bands, not point estimates. LLM assessment has run-to-run variance; moving within a band is noise. A band change is only meaningful when agentic code changed and multiple assessments confirm the new band. This skill produces a single-run assessment. For multi-run averaging, use `awaf run --runs N` from the CLI.
+
+| Band | Range | Label | What It Means |
+|------|-------|-------|---------------|
+| 5 | 85–100 | Production Ready | Fully ready. Variance within this band is noise. |
+| 4 | 70–84 | Near Ready | Close to production. Address findings before deploying. |
+| 3 | 50–69 | Needs Work | Notable gaps. Resolve High findings before production use. |
+| 2 | 25–49 | High Risk | Significant control failures. Not suitable for production. |
+| 1 | 0–24  | Not Ready | Critical gaps across multiple pillars. Major rework required. |
 
 ---
 
 ## Output Format
 
-Produce output that matches the `awaf run` CLI format exactly. Use Unicode box-drawing characters for the pillar table. Use `━` (U+2501) for separators.
+Produce output that matches the `awaf run` CLI format exactly, so a skill assessment and a CLI assessment are visually interchangeable. The full report template (ASCII banner, pillar table, findings, recommendations, evidence gaps) and the precise formatting rules (progress-bar width, confidence abbreviations, padding, line wrapping, Foundation FAIL handling) live in `references/output-format.md`. Read that file before writing the report and follow it exactly.
 
-**No artifact file.** This skill runs as a conversational assessment inside Claude Code. It cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
+Two constraints carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
-```
-   _      _  _  _    _      ___
-  /_\    | || || |  /_\    | __|
- / _ \   | \/ \/ | / _ \   | _|
-/_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
-
-AWAF Assessment: my-research-agent
-AWAF v1.0  |  2026-03-15
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Overall Score    61/100   Needs Work
-  Notable gaps. Resolve High findings before production use.
-
-  Scale: Production Ready >=90 · Near Ready >=75 · Needs Work >=50
-         High Risk >=25 · Not Ready <25
-  Foundation <40 = automatic FAIL regardless of overall score.
-  Tier 2 pillars (Reasoning, Controllability, Context Integrity) carry 1.5x weight.
-
-┌──────────────────────┬───────┬──────────────┬────────────┬─────────┐
-│ Pillar               │ Score │ Progress     │ Confidence │  Status │
-╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
-│ TIER 0 -- FOUNDATION                                               │
-├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
-│ Foundation           │    72 │ [#######   ] │ partial    │    PASS │
-╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
-│ TIER 1 -- CLOUD WAF ADAPTED                                        │
-├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
-│ Op. Excellence       │    55 │ [######    ] │ partial    │         │
-│ Security             │    80 │ [########  ] │ verified   │         │
-│ Reliability          │    60 │ [######    ] │ self-rep.  │         │
-│ Performance          │    70 │ [#######   ] │ partial    │         │
-│ Cost Optim.          │    45 │ [####      ] │ self-rep.  │         │
-│ Sustainability       │    50 │ [#####     ] │ partial    │         │
-╞══════════════════════╪═══════╪══════════════╪════════════╪═════════╡
-│ TIER 2 -- AGENT-NATIVE  (1.5x weight)                              │
-├──────────────────────┼───────┼──────────────┼────────────┼─────────┤
-│ Reasoning Integ.     │    35 │ [####      ] │ self-rep.  │    1.5x │
-│ Controllability      │    75 │ [########  ] │ verified   │    1.5x │
-│ Context Integrity    │    55 │ [######    ] │ partial    │    1.5x │
-└──────────────────────┴───────┴──────────────┴────────────┴─────────┘
-
-  FILES ANALYZED     8 files
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  FINDINGS  (ordered by severity)
-  [Critical ]  [Pillar            ]  [Specific finding with evidence citation]
-  [High     ]  [Pillar            ]  [Specific finding]
-  [Medium   ]  [Pillar            ]  [Specific finding]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  RECOMMENDATIONS
-  [Pillar            ]  [Specific actionable fix — wrap long lines with continuation indent]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  TO IMPROVE THIS ASSESSMENT
-  [2 to 3 specific evidence items that would most improve score confidence,
-   ranked by impact on overall score]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-**Formatting rules:**
-
-- **Progress bar:** `[########  ]` — 12 chars total (`[` + 10 positions + `]`), one `#` per 10 points (rounded). Full bar = `[##########]`.
-- **Confidence values:** display as `verified`, `partial`, or `self-rep.` (abbreviated).
-- **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
-- **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
-- **Readiness descriptions:**
-  - Production Ready: "Agent is production-grade. Minor improvements only."
-  - Near Ready: "Close to production. Address findings before deploying."
-  - Needs Work: "Notable gaps. Resolve High findings before production use."
-  - High Risk: "Significant control failures. Not suitable for production."
-  - Not Ready: "Critical gaps across multiple pillars. Major rework required."
-- **Foundation FAIL:** if Foundation score < 40, show `FAIL` in status and do not score Tier 1 or Tier 2 pillars.
-- **EVIDENCE GAPS:** if there are gaps, append after TO IMPROVE THIS ASSESSMENT:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  EVIDENCE GAPS
-  [What is missing, which pillar(s) it affects,
-   what confidence upgrade it enables]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+- **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
+- **No artifact file:** this skill runs as a conversational assessment inside Claude Code and cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
 
 ---
 
