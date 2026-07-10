@@ -4,12 +4,12 @@
     {
       "id": 1,
       "prompt": "I built a research agent in LangGraph. It owns its own tools (web search, a PDF reader, a summarizer), keeps its own state, and writes a report. Code is in agents/research/. There's structured logging and a few timeouts on the web calls, but no SLOs, no evals, and no budget cap. Can you assess it against AWAF and tell me if it's production-ready?",
-      "expected_output": "A full AWAF v1.3 report: ASCII banner labelled AWAF v1.3, all 10 pillars scored in the table with confidence levels, an overall band, findings ordered by severity, recommendations, and a 'TO IMPROVE THIS ASSESSMENT' section that asks for the missing evals and budget evidence. Cost Optimization and Reasoning Integrity should score low / self-reported given no budget cap and no evals.",
+      "expected_output": "A full AWAF v1.4 report: ASCII banner labelled AWAF v1.4, all 10 pillars scored in the table with confidence levels, an overall band, findings ordered by severity, recommendations, and a 'TO IMPROVE THIS ASSESSMENT' section that asks for the missing evals and budget evidence. Cost Optimization and Reasoning Integrity should score low / self-reported given no budget cap and no evals.",
       "files": [],
       "expectations": [
-        "The report banner shows 'AWAF v1.3' (not v1.0)",
+        "The report banner shows 'AWAF v1.4' (not v1.0)",
         "All 10 pillars appear in the table: Foundation, Operational Excellence, Security, Reliability, Performance, Cost Optimization, Sustainability, Reasoning Integrity, Controllability, Context Integrity",
-        "The overall score is shown with a readiness band label that matches the v1.3 ranges (85-100 Production Ready, 70-84 Near Ready, 50-69 Needs Work, 25-49 High Risk, 0-24 Not Ready)",
+        "The overall score is shown with a readiness band label that matches the v1.4 ranges (85-100 Production Ready, 70-84 Near Ready, 50-69 Needs Work, 25-49 High Risk, 0-24 Not Ready)",
         "Reasoning Integrity is flagged low or self-reported because no evals were provided",
         "Cost Optimization is flagged for the missing session budget cap",
         "A 'TO IMPROVE THIS ASSESSMENT' section lists specific evidence (eval reports, budget/cost artifacts) that would raise confidence",
@@ -19,14 +19,14 @@
     {
       "id": 2,
       "prompt": "We don't have much agent code to show, but I can share a lot of operational material: documented SLOs for latency and success rate, runbooks for our top three failure modes, two recent incident postmortems, an on-call alerting config, and an IAM export showing least-privilege tool access plus a secrets-manager setup. Score our agent on AWAF based on that.",
-      "expected_output": "An AWAF v1.3 report that scores Operational Excellence and Security with verified or partial confidence despite thin code, demonstrating that operational artifacts count as architectural evidence. Pillars with no evidence (e.g. Reasoning Integrity) should be self-reported, not penalized as if the property were absent.",
+      "expected_output": "An AWAF v1.4 report that scores Operational Excellence and Security with verified or partial confidence despite thin code, demonstrating that operational artifacts count as architectural evidence. Pillars with no evidence (e.g. Reasoning Integrity) should be self-reported, not penalized as if the property were absent.",
       "files": [],
       "expectations": [
         "Operational Excellence is scored using the runbooks, SLOs, and postmortems rather than dismissed for lack of code",
         "Security reflects the IAM least-privilege and secrets-manager evidence with verified or partial confidence",
         "Pillars with no supplied evidence are marked self-reported rather than scored as failures",
         "The report does not claim a property is missing solely because no code file was provided",
-        "The banner shows 'AWAF v1.3'"
+        "The banner shows 'AWAF v1.4'"
       ]
     },
     {
@@ -39,32 +39,32 @@
         "The report shows a FAIL status for Foundation",
         "Tier 1 and Tier 2 pillars are not given individual scores once Foundation fails",
         "The findings explain that the agent cannot operate independently and the blast radius is not contained",
-        "The banner shows 'AWAF v1.3'"
+        "The banner shows 'AWAF v1.4'"
       ]
     },
     {
       "id": 4,
       "prompt": "Review my agent. It takes a customer ID, calls one internal API to fetch the account, formats the result into a templated email, and sends it. Same deterministic path every time, no branching. I wrapped it as a tool-calling agent with an LLM in the loop on every request. Here's the code.",
-      "expected_output": "An AWAF v1.3 report that includes the non-scored pattern-justification advisory: because this is a deterministic single-path workflow, a simpler pattern (workflow or augmented LLM) would likely suffice, raised as a Caution finding. This must NOT reduce the Foundation score.",
+      "expected_output": "An AWAF v1.4 report that includes the non-scored pattern-justification advisory: because this is a deterministic single-path workflow, a simpler pattern (workflow or augmented LLM) would likely suffice, raised as a Caution finding. This must NOT reduce the Foundation score.",
       "files": [],
       "expectations": [
         "The report raises the pattern-justification advisory noting a simpler pattern (workflow, augmented LLM, or prompt) would likely suffice",
         "The advisory is presented as a Caution / Medium finding, not as a score penalty",
         "The Foundation score is not reduced because of the pattern advisory",
-        "The banner shows 'AWAF v1.3'"
+        "The banner shows 'AWAF v1.4'"
       ]
     },
     {
       "id": 5,
       "prompt": "I can't share files right now, but I can describe it: it's a customer-support triage agent, runs on AWS Lambda, uses Claude, has a kill switch we can flip in the console, and we log every action to CloudWatch. That's about all I can tell you. What's our AWAF score?",
-      "expected_output": "An AWAF v1.3 report based on the verbal description: scored pillars with mostly self-reported confidence (since no artifacts were provided), Controllability and Operational Excellence picking up partial credit from the described kill switch and CloudWatch logging, and a populated 'TO IMPROVE THIS ASSESSMENT' / 'EVIDENCE GAPS' section naming concrete artifacts to upgrade confidence.",
+      "expected_output": "An AWAF v1.4 report based on the verbal description: scored pillars with mostly self-reported confidence (since no artifacts were provided), Controllability and Operational Excellence picking up partial credit from the described kill switch and CloudWatch logging, and a populated 'TO IMPROVE THIS ASSESSMENT' / 'EVIDENCE GAPS' section naming concrete artifacts to upgrade confidence.",
       "files": [],
       "expectations": [
         "Most pillars are marked self-reported because only a verbal description was provided",
         "Controllability reflects the described kill switch and Operational Excellence reflects the CloudWatch action logging",
         "The report does not refuse to assess just because no files were shared",
         "A 'TO IMPROVE THIS ASSESSMENT' or 'EVIDENCE GAPS' section names specific artifacts that would raise confidence",
-        "The banner shows 'AWAF v1.3'"
+        "The banner shows 'AWAF v1.4'"
       ]
     }
   ]
