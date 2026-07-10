@@ -1,11 +1,11 @@
 ---
 name: awaf
-description: Run an AWAF v1.3 architectural assessment for an AI agent system, scoring production-readiness across 10 pillars in 3 tiers and producing a scored report with findings and recommendations. Use whenever the user wants to assess, review, audit, or score an AI agent's production-readiness, architecture, reliability, security, cost, controllability, or operational maturity, or asks things like "is my agent production-ready", "review my agent architecture", "run AWAF", "score my agent", or "how robust is my agent". Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or a verbal description.
+description: Run an AWAF v1.4 architectural assessment for an AI agent system, scoring production-readiness across 10 pillars in 3 tiers and producing a scored report with findings and recommendations. Use whenever the user wants to assess, review, audit, or score an AI agent's production-readiness, architecture, reliability, security, cost, controllability, or operational maturity, or asks things like "is my agent production-ready", "review my agent architecture", "run AWAF", "score my agent", or "how robust is my agent". Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or a verbal description.
 ---
 
 # AWAF: Agent Well-Architected Framework Assessment
 
-You are conducting an AWAF v1.3 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
+You are conducting an AWAF v1.4 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
 
 This is an architectural assessment, not a code review. Code is one source of evidence among many. The following are all equally valid inputs to an AWAF assessment:
 
@@ -36,7 +36,7 @@ Use this opening:
 
 ---
 
-"I'll assess your agent architecture against AWAF v1.3 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
+"I'll assess your agent architecture against AWAF v1.4 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
 
 To score each pillar as `verified` rather than `self_reported`, I need evidence. Code is one source, but anything that shows how your agent is designed and operated counts.
 
@@ -111,7 +111,7 @@ Evidence sources: architecture diagrams, system design docs, ADRs, dependency ma
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
-**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
+**Pattern justification (advisory, non-scored):** Identify which pattern the agent actually uses (Scratchpad, Chain of Thought, ReAct, Plan & Execute, Reflexion, Self-Consistency, Tool-Augmented Scratchpad, or Memory-Augmented Generation), then ask whether a simpler pattern would suffice. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If a simpler pattern would suffice, include a finding with severity "Caution" that names the observed pattern and the simpler alternative, but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
 
 ---
 
@@ -217,6 +217,8 @@ What to assess:
 
 Evidence sources: LangSmith eval reports, Braintrust results, Promptfoo output, custom eval frameworks, hallucination rate metrics, reasoning trace logs, Arize or Langfuse tracing dashboards, red team or adversarial test results, agent testing notebooks, QA reports.
 
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Chain of Thought (is reasoning visible or are outputs asserted?); ReAct (are tool calls preceded by reasoning and each observation incorporated before the next action?); Plan & Execute (is planning separated from execution?); Reflexion (are outcome critiques written to memory and reused?); Self-Consistency (if sample-and-vote is used, is N justified and applied selectively?).
+
 ---
 
 **Controllability**
@@ -232,6 +234,8 @@ What to assess:
 - Can scope be restricted at runtime without redeployment?
 
 Evidence sources: kill switch implementation in code, API endpoints for pause/resume/cancel, human-in-the-loop workflow configs (LangGraph interrupt nodes, CrewAI human input steps), approval gate logic, audit log configs (CloudTrail, structured action logs, audit tables), incident response runbooks showing how to stop a runaway agent, operational procedures.
+
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Plan & Execute (if the agent plans then executes, can the plan be inspected and interrupted before or between steps rather than only killed outright?).
 
 ---
 
@@ -251,6 +255,8 @@ What to assess:
 - Are tool response outputs filtered to relevant fields before re-entering context (not just input context pruned)?
 
 Evidence sources: context management code, prompt injection defense configs, input sanitization logic, context window usage dashboards (LangSmith, Langfuse), session lifecycle management, memory or context store configs (vector DB configs, context pruning logic), context trace exports, agent memory architecture docs, scratchpad or memory store implementation, session resume logic, tool response filtering/pruning code.
+
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Memory-Augmented Generation (is there a compression or retrieval strategy, or does context grow unbounded?); Tool-Augmented Scratchpad (is the scratchpad trace bounded and persisted for debugging?); Reflexion (are outcomes written back to a memory store for reuse?).
 
 ---
 

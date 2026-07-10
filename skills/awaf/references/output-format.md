@@ -13,7 +13,7 @@ Use Unicode box-drawing characters for the pillar table. Use `━` (U+2501) for 
 /_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
 
 AWAF Assessment: my-research-agent
-AWAF v1.3  |  2026-03-15
+AWAF v1.4  |  2026-03-15
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Overall Score    61/100   Needs Work
   Notable gaps. Resolve High findings before production use.
