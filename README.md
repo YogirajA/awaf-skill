@@ -21,6 +21,9 @@ Full spec: [github.com/YogirajA/awaf](https://github.com/YogirajA/awaf)
 **What's new in v1.4:**
 
 - Pattern audit guidance: eight agent-pattern signals folded into Foundation, Reasoning Integrity, Context Integrity, and Controllability as advisory (non-scored) checks.
+
+**Previously, in v1.3:**
+
 - **Batching criteria** in Performance Efficiency, Cost Optimization, and Sustainability: tool calls and LLM API calls should be batched where possible to cut per-call overhead, latency, and cost.
 - **Context Integrity expansions:** active context-size bounding (prune, summarize, or offload before window limits), explicit state persistence for long sessions, and filtering tool responses to relevant fields before they re-enter context.
 - **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Caution finding rather than a score penalty.
