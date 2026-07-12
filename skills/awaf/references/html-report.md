@@ -5,7 +5,7 @@ Read this when writing the saved HTML report. Produce a single self-contained HT
 ## Rules
 
 - **Self-contained.** Inline CSS only. No `<script>`, no images, no external fetch. The single Google-Fonts `<link>` with local fallbacks is the only external reference.
-- **Escape all assessment text.** Any text taken from the user or from your own findings (project name, finding detail, recommendation detail, evidence and gap items, improvement items) must have `<` replaced with `&lt;`, `>` with `&gt;`, and `&` with `&amp;` before you insert it. Constants you control (hex colors, integer scores) do not need escaping.
+- **Escape all assessment text.** Any text you substitute into a placeholder that did not originate from this document's own fixed vocabulary (the band labels, the severity buckets, and the hex colors defined here) must have `<` replaced with `&lt;`, `>` with `&gt;`, and `&` with `&amp;` before you insert it. That includes the project name, every finding detail and recommendation detail, the `file:line` location value, and every evidence, gap, and improvement item. File paths and finding text come from the assessed repository and can contain markup characters, so escaping them is what keeps the report free of injected `<script>` and true to the self-contained rule above.
 - **Fill in, do not restructure.** Substitute the assessment's real values into the skeleton and section snippets below. Keep the class names and structure exactly as written so the styling applies.
 - **No em dashes** in any copy you write into the report. The band ranges use en dashes (already in the template). The middot `·` is used as written.
 
@@ -120,7 +120,7 @@ BODY
 
 ## Section fragments
 
-**Masthead.** `SCORE` is the integer overall score. `BAND` and `BLURB` come from the readiness-band table below.
+**Masthead.** `SCORE` is the integer overall score. `BAND` and `BLURB` come from the readiness-band table below. `DATE` is today's date in YYYY-MM-DD format.
 
 ```html
 <header class="masthead"><div class="glow-a"></div><div class="glow-b"></div><div class="inner">
