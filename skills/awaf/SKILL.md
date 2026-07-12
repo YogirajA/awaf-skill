@@ -67,13 +67,53 @@ Share whatever you have. I will assess what I can verify, flag what I could not 
 
 ---
 
-### Step 2: Assess each pillar against all provided evidence
+### Step 2: Map the architecture (when code or config is available)
+
+If the user shares code, configuration, or infrastructure-as-code, build a pillar-shaped agent-architecture graph before you score. This is the same structured evidence the AWAF CLI extracts. It is an internal reasoning aid: use it to ground your pillar assessments and to anchor findings to exact locations. Do not render it as a section in the report.
+
+If the evidence is docs-only or a verbal description, skip this step and assess from what was shared. The graph never lowers a score on its own. It only sharpens which components and files each pillar examines. Extract only architecture that is actually present. Do not invent nodes.
+
+**Node types** (note each with its definition site as `file:line` where determinable):
+- `agent`: an autonomous decision-making loop
+- `tool`: a callable capability the agent invokes
+- `data_store`: a database, vector store, cache, or other persistent store
+- `context_source`: a source of context fed into the agent (retrieval, memory, prompt assembly)
+- `guardrail`: a control such as a kill switch, approval gate, validator, rate limiter, or trust-tier check
+- `external`: an external system or third-party API
+
+**Edge types:**
+- `calls`: an agent or tool invokes a tool
+- `hands_off_to`: one agent delegates to another
+- `accesses`: a component reads or writes a data_store
+- `feeds_context`: a context_source supplies context to an agent
+- `guards`: a guardrail constrains an agent, tool, or action
+
+**File-role manifest.** Classify each shared file as exactly one role: `agent`, `tool`, `orchestration`, `config`, `ops`, `observability`, `security`, `cost`, `data`, `test`, `docs`, or `other`.
+
+**Per-pillar relevance.** When scoring each pillar, draw first on the node types and file roles most relevant to it. This mirrors the CLI's evidence routing:
+
+| Pillar | Relevant node types | Relevant file roles |
+|--------|---------------------|---------------------|
+| Foundation | agent, tool, data_store, external | agent, tool, orchestration |
+| Op. Excellence | guardrail | ops, observability, docs, config |
+| Security | tool, external, data_store, guardrail | security, config, agent, tool |
+| Reliability | agent, tool, external | agent, tool, orchestration, config |
+| Performance | agent, tool | agent, tool, config, observability |
+| Cost Optim. | tool, external | cost, config |
+| Sustainability | agent, tool | cost, config, agent |
+| Reasoning Integ. | agent, tool | agent, tool |
+| Controllability | guardrail, agent, tool | agent, tool, orchestration |
+| Context Integrity | context_source, data_store, agent | agent, data, config |
+
+Carry the `file:line` of each relevant node into any finding it supports, so findings cite exact locations (see the finding-location rule in `references/output-format.md`).
+
+### Step 3: Assess each pillar against all provided evidence
 
 For each pillar, draw on every piece of evidence provided. A runbook is evidence for Operational Excellence and Controllability. An IAM export is evidence for Security. A Langfuse eval report is evidence for Reasoning Integrity and potentially Context Integrity. A Terraform cost budget is evidence for Cost Optimization.
 
 Do not limit yourself to code. Do not discount non-code evidence. Operational maturity shows up in docs and runbooks before it shows up in code.
 
-### Step 3: Score and flag gaps
+### Step 4: Score and flag gaps
 
 For each pillar, assign a score and a confidence level:
 
@@ -87,7 +127,7 @@ After the initial report, identify the 2 to 3 pillars where missing evidence has
 
 "Your Reasoning Integrity score is `self_reported` at 35 because no eval reports were provided. Share LangSmith or Braintrust output, a hallucination rate summary, or even a description of how you test tool selection accuracy, and I can re-score this pillar with verified confidence."
 
-### Step 4: Re-score when new evidence arrives
+### Step 5: Re-score when new evidence arrives
 
 When the user provides additional evidence, re-score affected pillars, update the overall score, and show the delta.
 
