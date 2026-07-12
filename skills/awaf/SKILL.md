@@ -347,7 +347,7 @@ Produce output that matches the `awaf run` CLI format exactly, so a skill assess
 Two constraints carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
 - **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
-- **No artifact file:** this skill runs as a conversational assessment inside Claude Code and cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
+- **Saved HTML report:** after presenting the text report in the conversation, write a self-contained HTML report to `awaf-report.html` in the working directory, following `references/html-report.md`, and tell the user the path. The in-conversation output stays the text report above; the HTML is the saved, shareable artifact. If Foundation failed, the HTML shows the same Foundation-fail state and does not invent Tier 1 or Tier 2 scores.
 
 ---
 
