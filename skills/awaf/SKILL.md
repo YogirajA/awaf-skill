@@ -344,7 +344,7 @@ Scores are bands, not point estimates. LLM assessment has run-to-run variance; m
 
 Produce output that matches the `awaf run` CLI format exactly, so a skill assessment and a CLI assessment are visually interchangeable. The full report template (ASCII banner, pillar table, findings, recommendations, evidence gaps) and the precise formatting rules (progress-bar width, confidence abbreviations, padding, line wrapping, Foundation FAIL handling) live in `references/output-format.md`. Read that file before writing the report and follow it exactly.
 
-Two constraints carry into the rendered report (the band scale above drives the report's `Scale:` line):
+Two things carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
 - **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
 - **Saved HTML report:** after presenting the text report in the conversation, write a self-contained HTML report to `awaf-report.html` in the working directory, following `references/html-report.md`, and tell the user the path. The in-conversation output stays the text report above; the HTML is the saved, shareable artifact. If Foundation failed, the HTML shows the same Foundation-fail state and does not invent Tier 1 or Tier 2 scores.
