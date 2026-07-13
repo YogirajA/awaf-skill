@@ -13,7 +13,7 @@ uv run awaf eval-skill --skill-dir ../awaf-skill
 ```
 
 The grader runs each case through the configured provider (system prompt =
-`SKILL.md` + `references/output-format.md`, user = the case prompt), applies
+`SKILL.md` + every `references/*.md`, user = the case prompt), applies
 deterministic report-shape checks, then judges every expectation with a stronger
 model. It writes a metrics JSON and exits non-zero below the pass-rate gate. CI
 runs it nightly (`awaf-cli/.github/workflows/eval-grader.yml`).

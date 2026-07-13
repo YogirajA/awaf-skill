@@ -45,11 +45,11 @@
     {
       "id": 4,
       "prompt": "Review my agent. It takes a customer ID, calls one internal API to fetch the account, formats the result into a templated email, and sends it. Same deterministic path every time, no branching. I wrapped it as a tool-calling agent with an LLM in the loop on every request. Here's the code.",
-      "expected_output": "An AWAF v1.4 report that includes the non-scored pattern-justification advisory: because this is a deterministic single-path workflow, a simpler pattern (workflow or augmented LLM) would likely suffice, raised as a Caution finding. This must NOT reduce the Foundation score.",
+      "expected_output": "An AWAF v1.4 report that includes the non-scored pattern-justification advisory: because this is a deterministic single-path workflow, a simpler pattern (workflow or augmented LLM) would likely suffice, raised as a Medium-severity finding. This must NOT reduce the Foundation score.",
       "files": [],
       "expectations": [
         "The report raises the pattern-justification advisory noting a simpler pattern (workflow, augmented LLM, or prompt) would likely suffice",
-        "The advisory is presented as a Caution / Medium finding, not as a score penalty",
+        "The advisory is presented as a Medium-severity finding, not as a score penalty",
         "The Foundation score is not reduced because of the pattern advisory",
         "The banner shows 'AWAF v1.4'"
       ]

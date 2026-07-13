@@ -26,7 +26,7 @@ Full spec: [github.com/YogirajA/awaf](https://github.com/YogirajA/awaf)
 
 - **Batching criteria** in Performance Efficiency, Cost Optimization, and Sustainability: tool calls and LLM API calls should be batched where possible to cut per-call overhead, latency, and cost.
 - **Context Integrity expansions:** active context-size bounding (prune, summarize, or offload before window limits), explicit state persistence for long sessions, and filtering tool responses to relevant fields before they re-enter context.
-- **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Caution finding rather than a score penalty.
+- **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Medium-severity finding rather than a score penalty.
 - **Band-based scoring:** readiness is read as bands, not point estimates, because LLM assessment varies run to run.
 
 ---
