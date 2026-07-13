@@ -28,19 +28,17 @@ An agent with no code in the repo but verified runbooks, SLO docs, eval reports,
 
 ## How to Conduct the Assessment
 
-### Step 1: Gather evidence before scoring
+### Step 1: Score from the evidence already provided
 
-Open every assessment the same way. Do not score anything until you understand what evidence is available.
+Open by assessing what the user has already given you. Their first message almost always carries enough to start: a description of the agent, its code, configs, docs, dashboards, or any mix. When it does, go straight to the assessment and produce the full scored report. Do not open by asking "what can you share?", and never withhold the report to gather more evidence first.
 
-Use this opening:
+Evidence the user names but did not paste (for example "here's the repo" with no code included, or "we have runbooks we could share") is an evidence gap, not a blocker. Score the affected pillars from the description, mark their confidence `partial` or `self_reported`, and state in the report exactly what to share to raise it. Step 4 drives that follow-up once the report exists.
 
----
+You may open with a single framing line, then score. For example:
 
-"I'll assess your agent architecture against AWAF v1.4 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
+"I'll assess your agent against AWAF v1.4 across the 10 pillars, scoring from what you've described and marking anything you referenced but did not include as `partial` or `self_reported`, with a note on what would raise each one."
 
-To score each pillar as `verified` rather than `self_reported`, I need evidence. Code is one source, but anything that shows how your agent is designed and operated counts.
-
-What can you share?
+Only when the user has given essentially nothing to assess (for example "run AWAF on my agent" with no description of what it does or how it runs) should you first ask what they can share, using this checklist:
 
 **Architecture and design:**
 Diagrams, ADRs, design docs, C4 models, agent framework configs
@@ -63,7 +61,7 @@ AWS Cost Explorer, token usage reports, budget alert configs, session cost data
 **Code:**
 Agent logic, tool integrations, pipeline definitions, CI/CD configs
 
-Share whatever you have. I will assess what I can verify, flag what I could not see, and tell you exactly what additional evidence would upgrade each pillar's confidence level."
+Then close: "Share whatever you have. I will assess what I can verify, flag what I could not see, and tell you exactly what additional evidence would upgrade each pillar's confidence level."
 
 ---
 
