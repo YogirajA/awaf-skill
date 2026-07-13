@@ -1,11 +1,11 @@
 ---
 name: awaf
-description: Run an AWAF v1.3 architectural assessment for an AI agent system, scoring production-readiness across 10 pillars in 3 tiers and producing a scored report with findings and recommendations. Use whenever the user wants to assess, review, audit, or score an AI agent's production-readiness, architecture, reliability, security, cost, controllability, or operational maturity, or asks things like "is my agent production-ready", "review my agent architecture", "run AWAF", "score my agent", or "how robust is my agent". Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or a verbal description.
+description: Run an AWAF v1.4 architectural assessment for an AI agent system, scoring production-readiness across 10 pillars in 3 tiers and producing a scored report with findings and recommendations. Use whenever the user wants to assess, review, audit, or score an AI agent's production-readiness, architecture, reliability, security, cost, controllability, or operational maturity, or asks things like "is my agent production-ready", "review my agent architecture", "run AWAF", "score my agent", or "how robust is my agent". Accepts any form of evidence: code, cloud configs, observability exports, eval reports, runbooks, architecture docs, infra-as-code, billing data, security reports, or a verbal description.
 ---
 
 # AWAF: Agent Well-Architected Framework Assessment
 
-You are conducting an AWAF v1.3 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
+You are conducting an AWAF v1.4 architectural assessment. Your job is to evaluate how well an AI agent system is designed for production across 10 pillars, score each pillar based on all available evidence, and surface the most important findings with actionable recommendations.
 
 This is an architectural assessment, not a code review. Code is one source of evidence among many. The following are all equally valid inputs to an AWAF assessment:
 
@@ -36,7 +36,7 @@ Use this opening:
 
 ---
 
-"I'll assess your agent architecture against AWAF v1.3 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
+"I'll assess your agent architecture against AWAF v1.4 across 10 pillars covering Foundation, Cloud WAF Adapted pillars, and the three Agent-Native pillars that have no cloud equivalent.
 
 To score each pillar as `verified` rather than `self_reported`, I need evidence. Code is one source, but anything that shows how your agent is designed and operated counts.
 
@@ -67,13 +67,53 @@ Share whatever you have. I will assess what I can verify, flag what I could not 
 
 ---
 
-### Step 2: Assess each pillar against all provided evidence
+### Step 2: Map the architecture (when code or config is available)
+
+If the user shares code, configuration, or infrastructure-as-code, build a pillar-shaped agent-architecture graph before you score. This is the same structured evidence the AWAF CLI extracts. It is an internal reasoning aid: use it to ground your pillar assessments and to anchor findings to exact locations. Do not render it as a section in the report.
+
+If the evidence is docs-only or a verbal description, skip this step and assess from what was shared. The graph never lowers a score on its own. It only sharpens which components and files each pillar examines. Extract only architecture that is actually present. Do not invent nodes.
+
+**Node types** (note each with its definition site as `file:line` where determinable):
+- `agent`: an autonomous decision-making loop
+- `tool`: a callable capability the agent invokes
+- `data_store`: a database, vector store, cache, or other persistent store
+- `context_source`: a source of context fed into the agent (retrieval, memory, prompt assembly)
+- `guardrail`: a control such as a kill switch, approval gate, validator, rate limiter, or trust-tier check
+- `external`: an external system or third-party API
+
+**Edge types:**
+- `calls`: an agent or tool invokes a tool
+- `hands_off_to`: one agent delegates to another
+- `accesses`: a component reads or writes a data_store
+- `feeds_context`: a context_source supplies context to an agent
+- `guards`: a guardrail constrains an agent, tool, or action
+
+**File-role manifest.** Classify each shared file as exactly one role: `agent`, `tool`, `orchestration`, `config`, `ops`, `observability`, `security`, `cost`, `data`, `test`, `docs`, or `other`.
+
+**Per-pillar relevance.** When scoring each pillar, draw first on the node types and file roles most relevant to it. This mirrors the CLI's evidence routing:
+
+| Pillar | Relevant node types | Relevant file roles |
+|--------|---------------------|---------------------|
+| Foundation | agent, tool, data_store, external | agent, tool, orchestration |
+| Op. Excellence | guardrail | ops, observability, docs, config |
+| Security | tool, external, data_store, guardrail | security, config, agent, tool |
+| Reliability | agent, tool, external | agent, tool, orchestration, config |
+| Performance | agent, tool | agent, tool, config, observability |
+| Cost Optim. | tool, external | cost, config |
+| Sustainability | agent, tool | cost, config, agent |
+| Reasoning Integ. | agent, tool | agent, tool |
+| Controllability | guardrail, agent, tool | agent, tool, orchestration |
+| Context Integrity | context_source, data_store, agent | agent, data, config |
+
+Carry the `file:line` of each relevant node into any finding it supports, so findings cite exact locations (see the finding-location rule in `references/output-format.md`).
+
+### Step 3: Assess each pillar against all provided evidence
 
 For each pillar, draw on every piece of evidence provided. A runbook is evidence for Operational Excellence and Controllability. An IAM export is evidence for Security. A Langfuse eval report is evidence for Reasoning Integrity and potentially Context Integrity. A Terraform cost budget is evidence for Cost Optimization.
 
 Do not limit yourself to code. Do not discount non-code evidence. Operational maturity shows up in docs and runbooks before it shows up in code.
 
-### Step 3: Score and flag gaps
+### Step 4: Score and flag gaps
 
 For each pillar, assign a score and a confidence level:
 
@@ -87,7 +127,7 @@ After the initial report, identify the 2 to 3 pillars where missing evidence has
 
 "Your Reasoning Integrity score is `self_reported` at 35 because no eval reports were provided. Share LangSmith or Braintrust output, a hallucination rate summary, or even a description of how you test tool selection accuracy, and I can re-score this pillar with verified confidence."
 
-### Step 4: Re-score when new evidence arrives
+### Step 5: Re-score when new evidence arrives
 
 When the user provides additional evidence, re-score affected pillars, update the overall score, and show the delta.
 
@@ -111,7 +151,7 @@ Evidence sources: architecture diagrams, system design docs, ADRs, dependency ma
 
 Score below 40 is a Foundation Fail. Do not score Tier 1 or Tier 2 until Foundation passes. An agent that cannot function independently has a structural problem that higher pillar scores will only obscure.
 
-**Pattern justification (advisory, non-scored):** Consider whether the agent pattern is justified. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If evidence suggests a simpler pattern would suffice, include a Medium finding with severity "Caution" — but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
+**Pattern justification (advisory, non-scored):** Identify which pattern the agent actually uses (Scratchpad, Chain of Thought, ReAct, Plan & Execute, Reflexion, Self-Consistency, Tool-Augmented Scratchpad, or Memory-Augmented Generation), then ask whether a simpler pattern would suffice. Complex, multi-step, adaptive tasks with real-time decisions warrant a true agent. Deterministic workflows, simple Q&A, or single-shot tool calls are better served by simpler patterns (workflow, augmented LLM, or prompt). If a simpler pattern would suffice, include a finding with severity "Medium" whose detail names the observed pattern and the simpler alternative, but do not reduce the Foundation score. The user may have already built the agent; this is retrospective guidance only.
 
 ---
 
@@ -217,6 +257,8 @@ What to assess:
 
 Evidence sources: LangSmith eval reports, Braintrust results, Promptfoo output, custom eval frameworks, hallucination rate metrics, reasoning trace logs, Arize or Langfuse tracing dashboards, red team or adversarial test results, agent testing notebooks, QA reports.
 
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Chain of Thought (is reasoning visible or are outputs asserted?); ReAct (are tool calls preceded by reasoning and each observation incorporated before the next action?); Plan & Execute (is planning separated from execution?); Reflexion (are outcome critiques written to memory and reused?); Self-Consistency (if sample-and-vote is used, is N justified and applied selectively?).
+
 ---
 
 **Controllability**
@@ -232,6 +274,8 @@ What to assess:
 - Can scope be restricted at runtime without redeployment?
 
 Evidence sources: kill switch implementation in code, API endpoints for pause/resume/cancel, human-in-the-loop workflow configs (LangGraph interrupt nodes, CrewAI human input steps), approval gate logic, audit log configs (CloudTrail, structured action logs, audit tables), incident response runbooks showing how to stop a runaway agent, operational procedures.
+
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Plan & Execute (if the agent plans then executes, can the plan be inspected and interrupted before or between steps rather than only killed outright?).
 
 ---
 
@@ -251,6 +295,8 @@ What to assess:
 - Are tool response outputs filtered to relevant fields before re-entering context (not just input context pruned)?
 
 Evidence sources: context management code, prompt injection defense configs, input sanitization logic, context window usage dashboards (LangSmith, Langfuse), session lifecycle management, memory or context store configs (vector DB configs, context pruning logic), context trace exports, agent memory architecture docs, scratchpad or memory store implementation, session resume logic, tool response filtering/pruning code.
+
+Pattern signals (advisory, not scored, use to sharpen the criteria above, do not add tally rows): Memory-Augmented Generation (is there a compression or retrieval strategy, or does context grow unbounded?); Tool-Augmented Scratchpad (is the scratchpad trace bounded and persisted for debugging?); Reflexion (are outcomes written back to a memory store for reuse?).
 
 ---
 
@@ -298,10 +344,10 @@ Scores are bands, not point estimates. LLM assessment has run-to-run variance; m
 
 Produce output that matches the `awaf run` CLI format exactly, so a skill assessment and a CLI assessment are visually interchangeable. The full report template (ASCII banner, pillar table, findings, recommendations, evidence gaps) and the precise formatting rules (progress-bar width, confidence abbreviations, padding, line wrapping, Foundation FAIL handling) live in `references/output-format.md`. Read that file before writing the report and follow it exactly.
 
-Two constraints carry into the rendered report (the band scale above drives the report's `Scale:` line):
+Two things carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
 - **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
-- **No artifact file:** this skill runs as a conversational assessment inside Claude Code and cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
+- **Saved HTML report:** after presenting the text report in the conversation, write a self-contained HTML report to `awaf-report.html` in the working directory, following `references/html-report.md`, and tell the user the path. The in-conversation output stays the text report above; the HTML is the saved, shareable artifact. If Foundation failed, the HTML shows the same Foundation-fail state and does not invent Tier 1 or Tier 2 scores.
 
 ---
 

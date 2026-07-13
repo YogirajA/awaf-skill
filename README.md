@@ -1,12 +1,12 @@
 # awaf — Claude Code Skill
 
-A [Claude Code](https://claude.ai/code) skill that runs an [AWAF v1.3](https://github.com/YogirajA/awaf) architectural assessment for AI agent systems.
+A [Claude Code](https://claude.ai/code) skill that runs an [AWAF v1.4](https://github.com/YogirajA/awaf) architectural assessment for AI agent systems.
 
 ## What is AWAF?
 
 **Agent Well-Architected Framework (AWAF)** is an open specification defining production-readiness criteria for AI agents. It fills the same gap for agents that AWS WAF fills for cloud infrastructure: a vendor-neutral, community-owned standard for architectural rigour.
 
-AWAF v1.3 evaluates agents across **10 pillars in 3 tiers**:
+AWAF v1.4 evaluates agents across **10 pillars in 3 tiers**:
 
 | Tier | Pillars | Weight |
 |------|---------|--------|
@@ -18,11 +18,15 @@ Tier 2 pillars carry extra weight because they have no cloud equivalent. Servers
 
 Full spec: [github.com/YogirajA/awaf](https://github.com/YogirajA/awaf)
 
-**What's new in v1.3:**
+**What's new in v1.4:**
+
+- Pattern audit guidance: eight agent-pattern signals folded into Foundation, Reasoning Integrity, Context Integrity, and Controllability as advisory (non-scored) checks.
+
+**Previously, in v1.3:**
 
 - **Batching criteria** in Performance Efficiency, Cost Optimization, and Sustainability: tool calls and LLM API calls should be batched where possible to cut per-call overhead, latency, and cost.
 - **Context Integrity expansions:** active context-size bounding (prune, summarize, or offload before window limits), explicit state persistence for long sessions, and filtering tool responses to relevant fields before they re-enter context.
-- **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Caution finding rather than a score penalty.
+- **Pattern-justification advisory** in Foundation: if a simpler pattern (workflow, augmented LLM, or prompt) would suffice, the assessment raises a non-scored Medium-severity finding rather than a score penalty.
 - **Band-based scoring:** readiness is read as bands, not point estimates, because LLM assessment varies run to run.
 
 ---
@@ -134,7 +138,7 @@ A `verified` 60 is more useful than a `self_reported` 85. The skill always displ
 /_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
 
 AWAF Assessment: my-research-agent
-AWAF v1.3  |  2026-03-15
+AWAF v1.4  |  2026-03-15
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Overall Score    61/100   Needs Work
   Notable gaps. Resolve High findings before production use.
@@ -210,7 +214,7 @@ AWAF v1.3  |  2026-03-15
 | Score history | Yes (local SQLite, `awaf history`) | No |
 | Best for | CI/CD, automated gates | Architecture reviews, early-stage agents, teams without full tooling |
 
-Both implement the same AWAF v1.3 spec and produce comparable scores. Because LLM assessment varies run to run, treat single-run scores as bands. When you need a confirmed band change, run the CLI with `--runs N`.
+Both implement the same AWAF v1.4 spec and produce comparable scores. Because LLM assessment varies run to run, treat single-run scores as bands. When you need a confirmed band change, run the CLI with `--runs N`.
 
 ---
 

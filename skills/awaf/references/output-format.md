@@ -4,7 +4,7 @@ Read this when producing the final assessment report. The report must match the 
 
 Use Unicode box-drawing characters for the pillar table. Use `━` (U+2501) for separators.
 
-**No artifact file.** This skill runs as a conversational assessment inside Claude Code. It cannot write `awaf-report.txt` to disk. For a saved artifact, the user should run `awaf run` from the CLI.
+**Text report plus HTML artifact.** This file specifies the in-conversation text report, which matches `awaf run` stdout. After the text report, the skill also writes a saved, self-contained HTML report to `awaf-report.html`. Its template and rules live in `references/html-report.md`.
 
 ```
    _      _  _  _    _      ___
@@ -13,7 +13,7 @@ Use Unicode box-drawing characters for the pillar table. Use `━` (U+2501) for 
 /_/ \_\   \_/\_/  /_/ \_\  |_       Agent Well-Architected Framework
 
 AWAF Assessment: my-research-agent
-AWAF v1.3  |  2026-03-15
+AWAF v1.4  |  2026-03-15
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Overall Score    61/100   Needs Work
   Notable gaps. Resolve High findings before production use.
@@ -70,6 +70,7 @@ AWAF v1.3  |  2026-03-15
 - **Progress bar:** `[########  ]` — 12 chars total (`[` + 10 positions + `]`), one `#` per 10 points (rounded). Full bar = `[##########]`.
 - **Confidence values:** display as `verified`, `partial`, or `self-rep.` (abbreviated).
 - **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
+- **Finding location:** when a finding derives from a specific code location, cite it inline in the detail as `file:line`, for example `no timeout on the tool call (tools/search.py:52)`. Include it only when a location is known. It is optional and does not change the findings row format, padding, or ordering.
 - **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
 - **Readiness descriptions:**
   - Production Ready (85–100): "Fully ready. Variance within this band is noise."
