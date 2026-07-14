@@ -78,7 +78,7 @@ AWAF v1.4  |  2026-03-15
   - Needs Work (50–69): "Notable gaps. Resolve High findings before production use."
   - High Risk (25–49): "Significant control failures. Not suitable for production."
   - Not Ready (0–24): "Critical gaps across multiple pillars. Major rework required."
-- **Foundation FAIL:** if Foundation score < 40, show `FAIL` in status and do not score Tier 1 or Tier 2 pillars.
+- **Foundation FAIL:** if Foundation score < 40, show `FAIL` in Foundation's status. Still list all 10 pillars in the table with their tier headers, but leave the Tier 1 and Tier 2 rows unscored (blank score and progress bar, confidence `-`) instead of omitting them, so the reader sees the full pillar set gated by Foundation. Still include the FINDINGS, RECOMMENDATIONS, and TO IMPROVE THIS ASSESSMENT sections; the findings explain why Foundation failed.
 - **EVIDENCE GAPS:** if there are gaps, append after TO IMPROVE THIS ASSESSMENT:
 
 ```
