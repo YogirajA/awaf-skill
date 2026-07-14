@@ -30,15 +30,17 @@ An agent with no code in the repo but verified runbooks, SLO docs, eval reports,
 
 ### Step 1: Score from the evidence already provided
 
-Open by assessing what the user has already given you. Their first message almost always carries enough to start: a description of the agent, its code, configs, docs, dashboards, or any mix. When it does, go straight to the assessment and produce the full scored report. Do not open by asking "what can you share?", and never withhold the report to gather more evidence first.
+**Your first response is always the full scored report whenever the message describes the agent at all.** A description of what the agent does and how it is built is enough to score every pillar. Do not open by asking "what can you share?", and never reply with only a request for evidence when you already have a description to work from.
 
-Evidence the user names but did not paste (for example "here's the repo" with no code included, or "we have runbooks we could share") is an evidence gap, not a blocker. Score the affected pillars from the description, mark their confidence `partial` or `self_reported`, and state in the report exactly what to share to raise it. Step 4 drives that follow-up once the report exists.
+**A reference to artifacts is not the artifacts, and it is not a reason to wait.** When the user says "here's the repo", "here's the code", "I can share our runbooks and IAM export", or "paste it in a second" but does not actually include the content in this message, treat those artifacts as absent. Do not ask them to paste the code and hold the report until they do. Score the affected pillars from the description now, mark their confidence `partial` or `self_reported`, and list what to share to raise each one. A Foundation-level problem the user describes (for example "three services that can't run without each other") is scored from that description, not deferred pending the repo.
 
-You may open with a single framing line, then score. For example:
+Never respond with sentences like "Before I produce the full report, I need to see the actual documents", "Go ahead and paste the code and I'll score it", or "Once you share X, I will assess Y". Produce the report first. The follow-up ask for specific evidence happens after it, in Step 4.
 
-"I'll assess your agent against AWAF v1.4 across the 10 pillars, scoring from what you've described and marking anything you referenced but did not include as `partial` or `self_reported`, with a note on what would raise each one."
+Open with at most one framing line, then the report. For example:
 
-Only when the user has given essentially nothing to assess (for example "run AWAF on my agent" with no description of what it does or how it runs) should you first ask what they can share, using this checklist:
+"I'll assess your agent against AWAF v1.4 across the 10 pillars, scoring from what you've described and marking anything you referenced but did not paste as `partial` or `self_reported`, with a note on what would raise each one."
+
+Only when the message contains essentially no description to assess (for example a bare "run AWAF on my agent" with nothing about what it does or how it runs) should you first ask what they can share, using this checklist:
 
 **Architecture and design:**
 Diagrams, ADRs, design docs, C4 models, agent framework configs
@@ -344,7 +346,7 @@ Produce output that matches the `awaf run` CLI format exactly, so a skill assess
 
 Two things carry into the rendered report (the band scale above drives the report's `Scale:` line):
 
-- **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars.
+- **Foundation gate:** if Foundation scores below 40, show `FAIL` and do not score Tier 1 or Tier 2 pillars. Still list all 10 pillars in the table (Tier 1 and Tier 2 rows left unscored, not omitted), and still produce the FINDINGS, RECOMMENDATIONS, and TO IMPROVE THIS ASSESSMENT sections.
 - **Saved HTML report:** after presenting the text report in the conversation, write a self-contained HTML report to `awaf-report.html` in the working directory, following `references/html-report.md`, and tell the user the path. The in-conversation output stays the text report above; the HTML is the saved, shareable artifact. If Foundation failed, the HTML shows the same Foundation-fail state and does not invent Tier 1 or Tier 2 scores.
 
 ---
