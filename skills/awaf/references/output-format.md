@@ -70,7 +70,7 @@ AWAF v1.4  |  2026-03-15
 - **Progress bar:** `[########  ]` — 12 chars total (`[` + 10 positions + `]`), one `#` per 10 points (rounded). Full bar = `[##########]`.
 - **Confidence values:** display as `verified`, `partial`, or `self-rep.` (abbreviated).
 - **Findings severity:** pad to 8 chars inside brackets — `[Critical ]`, `[High     ]`, `[Medium   ]`. Pillar padded to 18 chars.
-- **Finding location:** when a finding derives from a specific code location, cite it inline in the detail as `file:line`, for example `no timeout on the tool call (tools/search.py:52)`. Include it only when a location is known. It is optional and does not change the findings row format, padding, or ordering.
+- **Finding location:** when a finding derives from a specific code location, cite it inline in the detail as `file:line`, for example `no timeout on the tool call (tools/search.py:52)`. Include it only when a location is known. It is optional and does not change the findings row format, padding, or ordering. The line must be one you actually read and must point at the symbol or reference the finding names, never at the boundary of an excerpt; if you saw only part of a file, do not cite a line for code you did not see.
 - **Recommendations:** pillar padded to 18 chars. Wrap detail at ~65 chars with continuation indent matching the pillar column width.
 - **Readiness descriptions:**
   - Production Ready (85–100): "Fully ready. Variance within this band is noise."

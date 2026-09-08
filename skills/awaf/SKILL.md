@@ -107,6 +107,8 @@ If the evidence is docs-only or a verbal description, skip this step and assess 
 
 Carry the `file:line` of each relevant node into any finding it supports, so findings cite exact locations (see the finding-location rule in `references/output-format.md`).
 
+**Partial views are not absences.** You often see only part of a file: the user pasted an excerpt, a snippet was truncated, or you read a window around one symbol. Before writing a finding that says something is missing, unimplemented, or "not provided", check whether you saw the whole file. If you did not, search every shared file for the symbol's definition first. If it is still not found, do not assert absence: say it is "not visible in the shared evidence", name the file under evidence gaps, and cite only line numbers you actually read. A finding's `file:line` must point at the symbol or reference it names, never at the last line of an excerpt. This mirrors the CLI, whose slice headers state the extent shown (`lines a-b of N`) and whose pillars are forbidden from claiming absence from a partial view.
+
 ### Step 3: Assess each pillar against all provided evidence
 
 For each pillar, draw on every piece of evidence provided. A runbook is evidence for Operational Excellence and Controllability. An IAM export is evidence for Security. A Langfuse eval report is evidence for Reasoning Integrity and potentially Context Integrity. A Terraform cost budget is evidence for Cost Optimization.
@@ -362,3 +364,5 @@ Two things carry into the rendered report (the band scale above drives the repor
 **Always invite more evidence.** The assessment improves with every additional artifact. After the initial report, be explicit about what would most improve score accuracy. Name the specific tool, report type, or document that would help. The goal is to get to `verified` across as many pillars as possible.
 
 **Never penalize for what was not provided.** Mark it `self_reported`, flag the gap, and explain what it would take to upgrade. The user may simply not have thought to share it.
+
+**A partial view is not an absence.** Seeing 55 lines of a 140-line file says nothing about the other 85. Claim that code is missing only when you have seen the whole file (or every shared file, for a symbol). Otherwise mark it not visible, list it as an evidence gap, and ask for the rest.
