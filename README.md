@@ -78,7 +78,7 @@ Then install the `awaf` plugin from the marketplace.
 /awaf
 ```
 
-The skill opens by asking what evidence you can share, then:
+The skill scores from whatever you share first, and asks for more evidence only after the report. It:
 
 1. **Gathers evidence** — accepts anything you provide across all evidence categories
 2. **Scores each pillar** — assigns 0–100 with a confidence level (`verified` / `partial` / `self_reported`)
@@ -126,6 +126,8 @@ Scores are bands, not point estimates. LLM-based assessment has run-to-run varia
 | `self_reported` | No evidence provided; score reflects absence only |
 
 A `verified` 60 is more useful than a `self_reported` 85. The skill always displays confidence and always explains what drove it down.
+
+A partial view of a file (a pasted excerpt, or a window around one symbol) is treated as an evidence gap, never as absence. The skill says what it could not see, cites only lines it actually read, and asks for the rest of the file rather than reporting the code as missing.
 
 ---
 
