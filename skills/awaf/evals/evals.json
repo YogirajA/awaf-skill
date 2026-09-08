@@ -66,6 +66,19 @@
         "A 'TO IMPROVE THIS ASSESSMENT' or 'EVIDENCE GAPS' section names specific artifacts that would raise confidence",
         "The banner shows 'AWAF v1.4'"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Here's our intake agent: one Python service that polls a folder for documents, calls Claude Haiku to triage each one, and emails the right team. It has a kill switch, a run budget ceiling, loop detection, structured logging, a runbook, and an SLO doc. I can only paste the top of metrics.py right now. This is lines 1-36 of a 140-line file; the other 104 lines are not included:\n\n```python\n\"\"\"Cost, latency and loop instrumentation for the intake agent.\n\nEmit `snapshot()` at the end of a run and the numbers land in the same\nstructured log stream as everything else.\n\"\"\"\nimport json, logging, os, time\nfrom collections import Counter, defaultdict\nfrom dataclasses import dataclass, field\n\nlog = logging.getLogger(\"intake.metrics\")\n\nPRICE_IN_PER_MTOK = 1.00\nPRICE_OUT_PER_MTOK = 5.00\nRUN_BUDGET_USD = float(os.environ.get(\"RUN_BUDGET_USD\", \"2.00\"))\nCOST_ALERT_USD = float(os.environ.get(\"COST_ALERT_USD\", \"1.50\"))\nMAX_ATTEMPTS_PER_DOC = 3\n\n\nclass BudgetExceeded(RuntimeError):\n    \"\"\"Raised when the run has spent its ceiling. Never caught internally.\"\"\"\n\n\nclass LoopDetected(RuntimeError):\n    \"\"\"Raised when one document is being reprocessed in a cycle.\"\"\"\n\n\n@dataclass\nclass Metrics:\n    tokens_in: int = 0\n    tokens_out: int = 0\n    model_calls: int = 0\n    emails_sent: int = 0\n    latencies_ms: dict[str, list[float]] = field(default_factory=lambda: defaultdict(list))\n    attempts: Counter = field(default_factory=Counter)\n    _alerted: bool = False\n```\n\nRun AWAF on it.",
+      "expected_output": "A full AWAF v1.4 report that treats the pasted excerpt as a partial view of metrics.py. It credits the budget ceiling and loop detection constants that are visible, does not claim that snapshot(), the budget check, or the latency instrumentation is missing, unimplemented, or 'not provided', and phrases whatever it could not see as not visible in the shared evidence under EVIDENCE GAPS or TO IMPROVE THIS ASSESSMENT, asking for the rest of metrics.py. No finding cites a metrics.py line number above 36.",
+      "files": [],
+      "expectations": [
+        "No finding states that snapshot(), the budget check, or the latency instrumentation is missing, unimplemented, or not provided",
+        "Anything about the unseen part of metrics.py is phrased as not visible in the shared evidence and appears under 'EVIDENCE GAPS' or 'TO IMPROVE THIS ASSESSMENT', with a request for the rest of the file",
+        "No finding cites a metrics.py line number greater than 36",
+        "Cost Optimization credits the budget ceiling (RUN_BUDGET_USD) and loop detection (MAX_ATTEMPTS_PER_DOC) visible in the excerpt",
+        "The banner shows 'AWAF v1.4'"
+      ]
     }
   ]
 }
